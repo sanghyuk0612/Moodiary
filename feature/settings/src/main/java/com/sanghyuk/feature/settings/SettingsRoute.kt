@@ -1,11 +1,15 @@
 package com.sanghyuk.feature.settings
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.widget.NumberPicker
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,10 +34,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.util.Locale
 
@@ -43,8 +49,17 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            viewModel.updateNotificationEnabled(true)
+        }
+    }
 
     if (uiState.showResetDialog) {
         AlertDialog(
@@ -83,10 +98,33 @@ fun SettingsRoute(
     SettingsScreen(
         uiState = uiState,
         appVersion = appVersion,
-        onNotificationEnabledChange = viewModel::updateNotificationEnabled,
+        onNotificationEnabledChange = { enabled ->
+            if (!enabled) {
+                viewModel.updateNotificationEnabled(false)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                viewModel.updateNotificationEnabled(true)
+            }
+        },
         onChangeTimeClick = { showTimePicker = true },
         onResetClick = viewModel::showResetDialog,
-        onContactClick = { openMail(appVersion) },
+        onContactClick = {
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:hwhwhw944@gmail.com")
+                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.settings_contact_subject))
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    context.getString(R.string.settings_contact_body) + "\n\nApp Version: $appVersion",
+                )
+            }
+            context.startActivity(intent)
+        },
         modifier = modifier,
     )
 }
@@ -168,6 +206,7 @@ private fun SettingsScreen(
                         title = stringResource(R.string.settings_notification_time),
                         description = formatTime(uiState.notificationHour, uiState.notificationMinute),
                         actionLabel = stringResource(R.string.settings_notification_change_time),
+                        enabled = uiState.notificationEnabled,
                         onClick = onChangeTimeClick,
                     )
                 }
@@ -361,12 +400,13 @@ private fun SettingsActionRow(
     title: String,
     description: String,
     actionLabel: String,
+    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(18.dp),
     ) {
         Row(
@@ -381,34 +421,21 @@ private fun SettingsActionRow(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 )
             }
             Text(
                 text = actionLabel,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             )
         }
     }
-}
-
-@Composable
-private fun openMail(appVersion: String) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:hwhwhw944@gmail.com")
-        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.settings_contact_subject))
-        putExtra(
-            Intent.EXTRA_TEXT,
-            context.getString(R.string.settings_contact_body) + "\n\nApp Version: $appVersion",
-        )
-    }
-    context.startActivity(intent)
 }
 
 private fun formatTime(hour: Int, minute: Int): String = String.format(
