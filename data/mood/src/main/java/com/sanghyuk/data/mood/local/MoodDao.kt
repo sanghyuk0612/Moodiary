@@ -1,4 +1,4 @@
-﻿package com.sanghyuk.data.mood.local
+package com.sanghyuk.data.mood.local
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -15,4 +15,7 @@ interface MoodDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertMood(entity: MoodEntity)
+
+    @Query("DELETE FROM mood_entries WHERE date = :date")
+    suspend fun deleteMoodByDate(date: String)
 }

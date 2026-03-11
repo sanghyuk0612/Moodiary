@@ -1,4 +1,4 @@
-﻿package com.sanghyuk.feature.statistics
+package com.sanghyuk.feature.statistics
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -151,6 +151,7 @@ private fun StatisticsScreen(
                             text = stringResource(R.string.statistics_total_records, uiState.totalCount),
                             style = MaterialTheme.typography.bodyLarge,
                         )
+
                         uiState.topMood?.let { mood ->
                             Text(
                                 text = stringResource(
@@ -200,7 +201,10 @@ private fun StatisticsScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = encouragementMessage(uiState.topMood),
+                        text = encouragementMessage(
+                            tone = uiState.encouragementTone,
+                            variant = uiState.encouragementVariant,
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
@@ -250,13 +254,43 @@ private fun MoodStatRow(stat: MoodStatUiModel) {
 }
 
 @Composable
-private fun encouragementMessage(topMood: MoodType?): String = when (topMood) {
-    MoodType.VERY_GOOD -> stringResource(R.string.statistics_message_very_good)
-    MoodType.GOOD -> stringResource(R.string.statistics_message_good)
-    MoodType.SOSO -> stringResource(R.string.statistics_message_soso)
-    MoodType.BAD -> stringResource(R.string.statistics_message_bad)
-    MoodType.VERY_BAD -> stringResource(R.string.statistics_message_very_bad)
-    null -> stringResource(R.string.statistics_message_empty)
+private fun encouragementMessage(
+    tone: EncouragementTone,
+    variant: Int,
+): String {
+    val resId = when (tone) {
+        EncouragementTone.VERY_POSITIVE -> when (variant) {
+            0 -> R.string.statistics_message_very_positive_1
+            1 -> R.string.statistics_message_very_positive_2
+            else -> R.string.statistics_message_very_positive_3
+        }
+        EncouragementTone.POSITIVE -> when (variant) {
+            0 -> R.string.statistics_message_positive_1
+            1 -> R.string.statistics_message_positive_2
+            else -> R.string.statistics_message_positive_3
+        }
+        EncouragementTone.NEUTRAL -> when (variant) {
+            0 -> R.string.statistics_message_neutral_1
+            1 -> R.string.statistics_message_neutral_2
+            else -> R.string.statistics_message_neutral_3
+        }
+        EncouragementTone.NEGATIVE -> when (variant) {
+            0 -> R.string.statistics_message_negative_1
+            1 -> R.string.statistics_message_negative_2
+            else -> R.string.statistics_message_negative_3
+        }
+        EncouragementTone.VERY_NEGATIVE -> when (variant) {
+            0 -> R.string.statistics_message_very_negative_1
+            1 -> R.string.statistics_message_very_negative_2
+            else -> R.string.statistics_message_very_negative_3
+        }
+        EncouragementTone.EMPTY -> if (variant == 0) {
+            R.string.statistics_message_empty_1
+        } else {
+            R.string.statistics_message_empty_2
+        }
+    }
+    return stringResource(resId)
 }
 
 private fun MoodType.backgroundColor(): Color = when (this) {
@@ -297,6 +331,9 @@ private fun StatisticsRoutePreview() {
                 periodLabel = "3월 10일 - 3월 16일",
                 totalCount = 4,
                 topMood = MoodType.GOOD,
+                totalScore = 2,
+                encouragementTone = EncouragementTone.POSITIVE,
+                encouragementVariant = 1,
                 moodStats = listOf(
                     MoodStatUiModel(MoodType.VERY_GOOD, 1, 0.5f),
                     MoodStatUiModel(MoodType.GOOD, 2, 1f),

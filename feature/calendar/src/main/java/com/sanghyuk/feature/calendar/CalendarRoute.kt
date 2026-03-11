@@ -60,6 +60,7 @@ fun CalendarRoute(
         onDateSelected = viewModel::onDateSelected,
         onDismissEditor = viewModel::dismissEditor,
         onMoodSelected = viewModel::saveMood,
+        onDeleteMood = viewModel::deleteMood,
         modifier = modifier,
     )
 }
@@ -72,6 +73,7 @@ private fun CalendarScreen(
     onDateSelected: (LocalDate) -> Unit,
     onDismissEditor: () -> Unit,
     onMoodSelected: (MoodType) -> Unit,
+    onDeleteMood: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (uiState.isLoading) {
@@ -90,6 +92,7 @@ private fun CalendarScreen(
             selectedMood = uiState.editingMood,
             onDismiss = onDismissEditor,
             onMoodSelected = onMoodSelected,
+            onDeleteMood = onDeleteMood,
         )
     }
 
@@ -263,6 +266,7 @@ private fun MoodPickerDialog(
     selectedMood: MoodType?,
     onDismiss: () -> Unit,
     onMoodSelected: (MoodType) -> Unit,
+    onDeleteMood: () -> Unit,
 ) {
     val firstRow = MoodType.entries.take(3)
     val secondRow = MoodType.entries.drop(3)
@@ -300,8 +304,15 @@ private fun MoodPickerDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.calendar_picker_close))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (selectedMood != null) {
+                    TextButton(onClick = onDeleteMood) {
+                        Text(text = stringResource(R.string.calendar_picker_delete))
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.calendar_picker_close))
+                }
             }
         },
     )
@@ -389,12 +400,15 @@ private fun CalendarRoutePreview() {
                 topMood = MoodType.GOOD,
                 weeks = previewCalendarWeeks(),
                 canGoNext = false,
+                editingDate = LocalDate.of(2026, 3, 10),
+                editingMood = MoodType.GOOD,
             ),
             onPreviousMonth = {},
             onNextMonth = {},
             onDateSelected = {},
             onDismissEditor = {},
             onMoodSelected = {},
+            onDeleteMood = {},
         )
     }
 }

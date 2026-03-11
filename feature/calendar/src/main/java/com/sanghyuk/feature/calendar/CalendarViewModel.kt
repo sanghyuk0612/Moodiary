@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sanghyuk.domain.mood.model.MoodEntry
 import com.sanghyuk.domain.mood.model.MoodType
+import com.sanghyuk.domain.mood.usecase.DeleteMoodUseCase
 import com.sanghyuk.domain.mood.usecase.GetMoodEntriesUseCase
 import com.sanghyuk.domain.mood.usecase.SaveMoodUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 class CalendarViewModel @Inject constructor(
     private val getMoodEntriesUseCase: GetMoodEntriesUseCase,
     private val saveMoodUseCase: SaveMoodUseCase,
+    private val deleteMoodUseCase: DeleteMoodUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -75,6 +77,17 @@ class CalendarViewModel @Inject constructor(
 
         viewModelScope.launch {
             saveMoodUseCase(MoodEntry(date = editingDate, moodType = moodType))
+            dismissEditor()
+            loadCalendar(selectedMonth)
+        }
+    }
+
+    fun deleteMood() {
+        val editingDate = _uiState.value.editingDate ?: return
+        if (_uiState.value.editingMood == null) return
+
+        viewModelScope.launch {
+            deleteMoodUseCase(editingDate)
             dismissEditor()
             loadCalendar(selectedMonth)
         }
