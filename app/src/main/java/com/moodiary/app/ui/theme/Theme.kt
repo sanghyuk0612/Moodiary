@@ -1,4 +1,4 @@
-package com.sanghyuk.moodiary.ui.theme
+package com.moodiary.app.ui.theme
 
 import android.app.Activity
 import android.os.Build

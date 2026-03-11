@@ -1,4 +1,4 @@
-﻿pluginManagement {
+pluginManagement {
     repositories {
         google {
             content {
@@ -28,3 +28,4 @@ include(":data:mood")
 include(":feature:home")
 include(":feature:statistics")
 include(":feature:calendar")
+include(":feature:settings")

@@ -1,6 +1,7 @@
-﻿<resources>
+<resources>
     <string name="app_name">Moodiary</string>
     <string name="bottom_nav_today">투데이</string>
     <string name="bottom_nav_calendar">캘린더</string>
     <string name="bottom_nav_statistics">통계</string>
+    <string name="bottom_nav_settings">설정</string>
 </resources>

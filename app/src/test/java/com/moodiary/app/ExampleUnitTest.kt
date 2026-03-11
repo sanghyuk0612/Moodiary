@@ -1,4 +1,4 @@
-package com.sanghyuk.moodiary
+package com.moodiary.app
 
 import org.junit.Test
 
