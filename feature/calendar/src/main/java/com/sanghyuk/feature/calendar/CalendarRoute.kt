@@ -1,29 +1,33 @@
-﻿package com.sanghyuk.feature.calendar
+package com.sanghyuk.feature.calendar
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,9 +35,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sanghyuk.designsystem.component.MoodChip
 import com.sanghyuk.designsystem.theme.MoodiaryTheme
 import com.sanghyuk.domain.mood.model.MoodType
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun CalendarRoute(
@@ -50,6 +57,10 @@ fun CalendarRoute(
         uiState = uiState,
         onPreviousMonth = viewModel::goToPreviousMonth,
         onNextMonth = viewModel::goToNextMonth,
+        onDateSelected = viewModel::onDateSelected,
+        onDismissEditor = viewModel::dismissEditor,
+        onMoodSelected = viewModel::saveMood,
+        onDeleteMood = viewModel::deleteMood,
         modifier = modifier,
     )
 }
@@ -59,6 +70,10 @@ private fun CalendarScreen(
     uiState: CalendarUiState,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
+    onDateSelected: (LocalDate) -> Unit,
+    onDismissEditor: () -> Unit,
+    onMoodSelected: (MoodType) -> Unit,
+    onDeleteMood: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (uiState.isLoading) {
@@ -69,6 +84,16 @@ private fun CalendarScreen(
             CircularProgressIndicator()
         }
         return
+    }
+
+    uiState.editingDate?.let { editingDate ->
+        MoodPickerDialog(
+            date = editingDate,
+            selectedMood = uiState.editingMood,
+            onDismiss = onDismissEditor,
+            onMoodSelected = onMoodSelected,
+            onDeleteMood = onDeleteMood,
+        )
     }
 
     LazyColumn(
@@ -96,7 +121,7 @@ private fun CalendarScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
-                    FilledTonalButton(onClick = onNextMonth) {
+                    FilledTonalButton(onClick = onNextMonth, enabled = uiState.canGoNext) {
                         Text(text = stringResource(R.string.calendar_next_month))
                     }
                 }
@@ -113,7 +138,10 @@ private fun CalendarScreen(
         }
 
         item {
-            CalendarGrid(uiState = uiState)
+            CalendarGrid(
+                uiState = uiState,
+                onDateSelected = onDateSelected,
+            )
         }
     }
 }
@@ -158,7 +186,10 @@ private fun SummaryCard(uiState: CalendarUiState) {
 }
 
 @Composable
-private fun CalendarGrid(uiState: CalendarUiState) {
+private fun CalendarGrid(
+    uiState: CalendarUiState,
+    onDateSelected: (LocalDate) -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             weekdayHeaderResIds().forEach { resId ->
@@ -177,6 +208,7 @@ private fun CalendarGrid(uiState: CalendarUiState) {
                 week.forEach { day ->
                     DayCell(
                         day = day,
+                        onClick = { onDateSelected(day.date) },
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -188,8 +220,10 @@ private fun CalendarGrid(uiState: CalendarUiState) {
 @Composable
 private fun DayCell(
     day: CalendarDayUiModel,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val shape = RoundedCornerShape(14.dp)
     val borderColor = if (day.isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
     val containerColor = when {
         !day.isCurrentMonth -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
@@ -201,8 +235,10 @@ private fun DayCell(
     Column(
         modifier = modifier
             .aspectRatio(1f)
-            .border(width = if (day.isToday) 1.5.dp else 1.dp, color = borderColor, shape = RoundedCornerShape(14.dp))
-            .background(color = containerColor, shape = RoundedCornerShape(14.dp))
+            .clip(shape)
+            .border(width = if (day.isToday) 1.5.dp else 1.dp, color = borderColor, shape = shape)
+            .background(color = containerColor, shape = shape)
+            .clickable(enabled = !day.isFuture, onClick = onClick)
             .padding(horizontal = 6.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -210,12 +246,108 @@ private fun DayCell(
         Text(
             text = day.dayOfMonthLabel,
             style = MaterialTheme.typography.labelMedium,
-            color = if (day.isCurrentMonth) contentColor else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = when {
+                day.isFuture -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                day.isCurrentMonth -> contentColor
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            },
         )
         Text(
             text = day.emoji ?: "",
             style = MaterialTheme.typography.titleSmall,
+            color = if (day.isFuture) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else Color.Unspecified,
         )
+    }
+}
+
+@Composable
+private fun MoodPickerDialog(
+    date: LocalDate,
+    selectedMood: MoodType?,
+    onDismiss: () -> Unit,
+    onMoodSelected: (MoodType) -> Unit,
+    onDeleteMood: () -> Unit,
+) {
+    val firstRow = MoodType.entries.take(3)
+    val secondRow = MoodType.entries.drop(3)
+    val formattedDate = date.format(DateTimeFormatter.ofPattern("M/d", Locale.KOREA))
+    val messageResId = if (selectedMood == null) {
+        R.string.calendar_picker_message
+    } else {
+        R.string.calendar_picker_edit_message
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.calendar_picker_title))
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(messageResId, formattedDate),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                MoodPickerRow(
+                    moods = firstRow,
+                    selectedMood = selectedMood,
+                    onMoodSelected = onMoodSelected,
+                )
+                MoodPickerRow(
+                    moods = secondRow,
+                    selectedMood = selectedMood,
+                    onMoodSelected = onMoodSelected,
+                    centerAligned = true,
+                )
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (selectedMood != null) {
+                    TextButton(onClick = onDeleteMood) {
+                        Text(text = stringResource(R.string.calendar_picker_delete))
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.calendar_picker_close))
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun MoodPickerRow(
+    moods: List<MoodType>,
+    selectedMood: MoodType?,
+    onMoodSelected: (MoodType) -> Unit,
+    centerAligned: Boolean = false,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (centerAligned) {
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.weight(0.5f))
+        }
+
+        moods.forEach { mood ->
+            MoodChip(
+                emoji = mood.emoji,
+                label = stringResource(mood.labelResId),
+                selected = selectedMood == mood,
+                backgroundColor = mood.backgroundColor(),
+                onClick = { onMoodSelected(mood) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        if (centerAligned) {
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.weight(0.5f))
+        }
     }
 }
 
@@ -263,19 +395,27 @@ private fun CalendarRoutePreview() {
         CalendarScreen(
             uiState = CalendarUiState(
                 isLoading = false,
-                monthTitle = "2026년 3월",
+                monthTitle = "2026.03",
                 recordedDays = 8,
                 topMood = MoodType.GOOD,
                 weeks = previewCalendarWeeks(),
+                canGoNext = false,
+                editingDate = LocalDate.of(2026, 3, 10),
+                editingMood = MoodType.GOOD,
             ),
             onPreviousMonth = {},
             onNextMonth = {},
+            onDateSelected = {},
+            onDismissEditor = {},
+            onMoodSelected = {},
+            onDeleteMood = {},
         )
     }
 }
 
 private fun previewCalendarWeeks(): List<List<CalendarDayUiModel>> {
     val baseDate = LocalDate.of(2026, 2, 23)
+    val today = LocalDate.of(2026, 3, 11)
     return List(5) { weekIndex ->
         List(7) { dayIndex ->
             val offset = weekIndex * 7 + dayIndex
@@ -291,7 +431,8 @@ private fun previewCalendarWeeks(): List<List<CalendarDayUiModel>> {
                 date = date,
                 dayOfMonthLabel = date.dayOfMonth.toString(),
                 isCurrentMonth = date.monthValue == 3,
-                isToday = date == LocalDate.of(2026, 3, 11),
+                isToday = date == today,
+                isFuture = date.isAfter(today),
                 moodType = mood,
                 emoji = mood?.emoji,
             )

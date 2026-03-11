@@ -1,4 +1,4 @@
-﻿package com.sanghyuk.feature.statistics
+package com.sanghyuk.feature.statistics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.random.Random
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -92,6 +93,9 @@ class StatisticsViewModel @Inject constructor(
         val topMood = counts.maxByOrNull { it.value }?.takeIf { it.value > 0 }?.key
         val totalCount = filteredEntries.size
         val maxCount = counts.maxOfOrNull { it.value } ?: 0
+        val totalScore = filteredEntries.sumOf { it.moodType.score }
+        val encouragementTone = encouragementTone(totalCount = totalCount, totalScore = totalScore)
+        val encouragementVariant = randomVariant(encouragementTone)
 
         return StatisticsUiState(
             isLoading = false,
@@ -99,6 +103,9 @@ class StatisticsViewModel @Inject constructor(
             periodLabel = formatPeriodLabel(selectedPeriod, selectedAnchorDate),
             totalCount = totalCount,
             topMood = topMood,
+            totalScore = totalScore,
+            encouragementTone = encouragementTone,
+            encouragementVariant = encouragementVariant,
             moodStats = MoodType.entries.map { mood ->
                 MoodStatUiModel(
                     moodType = mood,
@@ -122,6 +129,30 @@ class StatisticsViewModel @Inject constructor(
         }
     }
 
+    private fun encouragementTone(totalCount: Int, totalScore: Int): EncouragementTone {
+        if (totalCount == 0) return EncouragementTone.EMPTY
+
+        return when {
+            totalScore >= totalCount -> EncouragementTone.VERY_POSITIVE
+            totalScore > 0 -> EncouragementTone.POSITIVE
+            totalScore <= -totalCount -> EncouragementTone.VERY_NEGATIVE
+            totalScore < 0 -> EncouragementTone.NEGATIVE
+            else -> EncouragementTone.NEUTRAL
+        }
+    }
+
+    private fun randomVariant(tone: EncouragementTone): Int {
+        val variantCount = when (tone) {
+            EncouragementTone.VERY_POSITIVE -> 3
+            EncouragementTone.POSITIVE -> 3
+            EncouragementTone.NEUTRAL -> 3
+            EncouragementTone.NEGATIVE -> 3
+            EncouragementTone.VERY_NEGATIVE -> 3
+            EncouragementTone.EMPTY -> 2
+        }
+        return Random.nextInt(variantCount)
+    }
+
     private fun canGoToNextPeriod(): Boolean = when (selectedPeriod) {
         StatisticsPeriod.WEEKLY -> selectedAnchorDate.isBefore(startOfWeek(today))
         StatisticsPeriod.MONTHLY -> selectedAnchorDate.isBefore(startOfMonth(today))
@@ -137,12 +168,24 @@ enum class StatisticsPeriod {
     MONTHLY,
 }
 
+enum class EncouragementTone {
+    VERY_POSITIVE,
+    POSITIVE,
+    NEUTRAL,
+    NEGATIVE,
+    VERY_NEGATIVE,
+    EMPTY,
+}
+
 data class StatisticsUiState(
     val isLoading: Boolean = true,
     val selectedPeriod: StatisticsPeriod = StatisticsPeriod.WEEKLY,
     val periodLabel: String = "",
     val totalCount: Int = 0,
     val topMood: MoodType? = null,
+    val totalScore: Int = 0,
+    val encouragementTone: EncouragementTone = EncouragementTone.EMPTY,
+    val encouragementVariant: Int = 0,
     val moodStats: List<MoodStatUiModel> = emptyList(),
     val canGoNext: Boolean = false,
 )
@@ -152,3 +195,12 @@ data class MoodStatUiModel(
     val count: Int,
     val ratio: Float,
 )
+
+private val MoodType.score: Int
+    get() = when (this) {
+        MoodType.VERY_GOOD -> 2
+        MoodType.GOOD -> 1
+        MoodType.SOSO -> 0
+        MoodType.BAD -> -1
+        MoodType.VERY_BAD -> -2
+    }

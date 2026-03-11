@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="statistics_title">감정 통계</string>
     <string name="statistics_description">주간 또는 월간 기준으로 감정 흐름을 살펴보세요.</string>
     <string name="statistics_weekly">주간</string>
@@ -6,16 +6,35 @@
     <string name="statistics_previous_period">이전</string>
     <string name="statistics_next_period">다음</string>
     <string name="statistics_total_records">기록 수 %1$d회</string>
+    <string name="statistics_total_score">감정 점수 %1$d점</string>
     <string name="statistics_top_mood">가장 많이 표현한 감정 %1$s %2$s</string>
     <string name="statistics_empty">아직 분석할 감정 기록이 없어요.</string>
-    <string name="statistics_message_very_good">행복한 날이 많아서 정말 보기 좋아요!!</string>
-    <string name="statistics_message_good">편안하고 좋은 흐름이 이어지고 있네요!</string>
-    <string name="statistics_message_soso">차분하게 하루하루를 잘 보내고 있어 보여요.</string>
-    <string name="statistics_message_bad">조금 지친 흐름이 보여요. 오늘은 더 잘 챙겨주세요.</string>
-    <string name="statistics_message_very_bad">많이 힘들었나 봐요. 오늘은 꼭 스스로를 먼저 돌봐주세요.</string>
-    <string name="statistics_message_empty">조금씩 기록을 쌓으면 감정 흐름이 보이기 시작할 거예요.</string>
     <string name="statistics_section_distribution">감정 분포</string>
     <string name="statistics_section_message">한마디</string>
+
+    <string name="statistics_message_very_positive_1">행복한 에너지가 가득 느껴져서 보기 좋아요.</string>
+    <string name="statistics_message_very_positive_2">밝은 감정이 많이 쌓였네요. 요즘 꽤 좋은 흐름이에요.</string>
+    <string name="statistics_message_very_positive_3">기분 좋은 날들이 이어지고 있네요. 지금 분위기 오래 갔으면 좋겠어요.</string>
+
+    <string name="statistics_message_positive_1">전체적으로 따뜻하고 안정적인 흐름이 보여요.</string>
+    <string name="statistics_message_positive_2">좋은 감정이 조금 더 많네요. 지금 리듬이 꽤 괜찮아 보여요.</string>
+    <string name="statistics_message_positive_3">잔잔하게 좋은 날들이 쌓이고 있어요. 이 흐름 정말 좋아요.</string>
+
+    <string name="statistics_message_neutral_1">감정의 균형이 잘 맞아 보여요. 차분하게 잘 지나가고 있네요.</string>
+    <string name="statistics_message_neutral_2">크게 치우치지 않은 흐름이에요. 지금처럼 천천히 기록해봐요.</string>
+    <string name="statistics_message_neutral_3">담담한 날들이 이어지고 있네요. 그만큼 꾸준히 버티고 있다는 뜻이기도 해요.</string>
+
+    <string name="statistics_message_negative_1">조금 지친 흐름이 보이네요. 오늘은 스스로를 더 챙겨주세요.</string>
+    <string name="statistics_message_negative_2">마음이 살짝 무거웠던 날이 더 많았어요. 잠깐 쉬어가도 괜찮아요.</string>
+    <string name="statistics_message_negative_3">요즘 에너지가 조금 내려간 것 같아요. 작은 휴식 하나만 챙겨봐요.</string>
+
+    <string name="statistics_message_very_negative_1">많이 힘들었을 수 있겠어요. 오늘은 나를 우선으로 대해주세요.</string>
+    <string name="statistics_message_very_negative_2">버거운 날들이 꽤 있었네요. 혼자 버티지 말고 쉬어도 괜찮아요.</string>
+    <string name="statistics_message_very_negative_3">마음이 많이 지쳐 보이는 흐름이에요. 지금은 회복이 제일 중요해요.</string>
+
+    <string name="statistics_message_empty_1">조금씩 기록을 쌓으면 감정 흐름이 보이기 시작할 거예요.</string>
+    <string name="statistics_message_empty_2">첫 기록이 쌓이면 여기서 감정의 흐름을 같이 볼 수 있어요.</string>
+
     <string name="mood_very_good_label">최고</string>
     <string name="mood_good_label">좋음</string>
     <string name="mood_soso_label">보통</string>

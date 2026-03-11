@@ -1,6 +1,7 @@
-﻿package com.sanghyuk.feature.home
+package com.sanghyuk.feature.home
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,17 +11,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +38,10 @@ fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
 
     HomeScreen(
         uiState = uiState,
@@ -99,16 +107,8 @@ private fun HomeScreen(
                 )
             }
         }
-        Text(
-            text = uiState.selectedMood?.let {
-                stringResource(
-                    R.string.home_selected_mood,
-                    stringResource(it.labelResId),
-                    it.emoji,
-                )
-            } ?: stringResource(R.string.home_empty_state),
-            style = MaterialTheme.typography.titleMedium,
-        )
+        SelectedMoodCard(selectedMood = uiState.selectedMood)
+        RecentMoodCard(recentMoods = uiState.recentMoods)
     }
 }
 
@@ -145,6 +145,84 @@ private fun MoodRow(
     }
 }
 
+@Composable
+private fun SelectedMoodCard(selectedMood: MoodType?) {
+    val backgroundColor = selectedMood?.backgroundColor() ?: MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+        ) {
+            Text(
+                text = selectedMood?.let {
+                    stringResource(
+                        R.string.home_selected_mood,
+                        stringResource(it.labelResId),
+                        it.emoji,
+                    )
+                } ?: stringResource(R.string.home_empty_state),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentMoodCard(recentMoods: List<RecentMoodUiModel>) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.home_recent_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(R.string.home_recent_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                recentMoods.forEach { mood ->
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = mood.moodType?.backgroundColor()
+                                    ?: MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                                shape = RoundedCornerShape(16.dp),
+                            )
+                            .padding(vertical = 10.dp, horizontal = 6.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = mood.dayLabel,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = mood.emoji ?: "-",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun MoodType.backgroundColor(): Color = when (this) {
     MoodType.VERY_GOOD -> Color(0xFFDDF6D8)
     MoodType.GOOD -> Color(0xFFE6F4EA)
@@ -177,7 +255,19 @@ private val MoodType.labelResId: Int
 private fun HomeRoutePreview() {
     MoodiaryTheme {
         HomeScreen(
-            uiState = HomeUiState(isLoading = false, selectedMood = MoodType.GOOD),
+            uiState = HomeUiState(
+                isLoading = false,
+                selectedMood = MoodType.GOOD,
+                recentMoods = listOf(
+                    RecentMoodUiModel("3/5", "\uD83D\uDE42", MoodType.GOOD),
+                    RecentMoodUiModel("3/6", "\uD83D\uDE01", MoodType.VERY_GOOD),
+                    RecentMoodUiModel("3/7", null, null),
+                    RecentMoodUiModel("3/8", "\uD83D\uDE22", MoodType.VERY_BAD),
+                    RecentMoodUiModel("3/9", "\uD83D\uDE10", MoodType.SOSO),
+                    RecentMoodUiModel("3/10", "\uD83D\uDE42", MoodType.GOOD),
+                    RecentMoodUiModel("3/11", "\uD83D\uDE42", MoodType.GOOD),
+                ),
+            ),
             onMoodSelected = {},
             contentPadding = PaddingValues(0.dp),
         )
