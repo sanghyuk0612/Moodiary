@@ -1,0 +1,4 @@
+﻿<resources>
+    <string name="calendar_title">감정 캘린더</string>
+    <string name="calendar_description">지금까지 기록한 감정을 달력 형태로 모아보는 화면입니다.</string>
+</resources>
