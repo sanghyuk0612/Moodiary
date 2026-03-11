@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    namespace = "com.sanghyuk.moodiary"
+    namespace = "com.moodiary.app"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.sanghyuk.moodiary"
+        applicationId = "com.moodiary.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -54,6 +55,7 @@ dependencies {
     implementation(project(":feature:home"))
     implementation(project(":feature:statistics"))
     implementation(project(":feature:calendar"))
+    implementation(project(":feature:settings"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

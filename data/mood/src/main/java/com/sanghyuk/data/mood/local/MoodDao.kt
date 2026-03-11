@@ -18,4 +18,7 @@ interface MoodDao {
 
     @Query("DELETE FROM mood_entries WHERE date = :date")
     suspend fun deleteMoodByDate(date: String)
+
+    @Query("DELETE FROM mood_entries")
+    suspend fun deleteAllMoods()
 }
