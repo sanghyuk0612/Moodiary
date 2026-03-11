@@ -2,6 +2,7 @@
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,17 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sanghyuk.designsystem.component.MoodChip
 import com.sanghyuk.designsystem.theme.MoodiaryTheme
 import com.sanghyuk.domain.mood.model.MoodType
@@ -28,12 +31,13 @@ import com.sanghyuk.domain.mood.model.MoodType
 @Composable
 fun HomeRoute(
     modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    var selectedMood by remember { mutableStateOf<MoodType?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
 
     HomeScreen(
-        selectedMood = selectedMood,
-        onMoodSelected = { selectedMood = it },
+        uiState = uiState,
+        onMoodSelected = viewModel::onMoodSelected,
         contentPadding = PaddingValues(0.dp),
         modifier = modifier,
     )
@@ -41,11 +45,26 @@ fun HomeRoute(
 
 @Composable
 private fun HomeScreen(
-    selectedMood: MoodType?,
+    uiState: HomeUiState,
     onMoodSelected: (MoodType) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    if (uiState.isLoading) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    val moodRows = listOf(
+        MoodType.entries.take(3),
+        MoodType.entries.drop(3),
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -69,29 +88,40 @@ private fun HomeScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                MoodType.entries.toList().chunked(3).forEach { rowMoods ->
+                moodRows.forEachIndexed { index, rowMoods ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        if (index == 1) {
+                            Spacer(modifier = Modifier.weight(0.5f))
+                        }
+
                         rowMoods.forEach { mood ->
                             MoodChip(
                                 emoji = mood.emoji,
                                 label = stringResource(mood.labelResId),
-                                selected = selectedMood == mood,
+                                selected = uiState.selectedMood == mood,
+                                backgroundColor = mood.backgroundColor(),
                                 onClick = { onMoodSelected(mood) },
                                 modifier = Modifier.weight(1f),
                             )
                         }
+
                         repeat(3 - rowMoods.size) {
                             Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        if (index == 1) {
+                            Spacer(modifier = Modifier.weight(0.5f))
                         }
                     }
                 }
             }
         }
         Text(
-            text = selectedMood?.let {
+            text = uiState.selectedMood?.let {
                 stringResource(
                     R.string.home_selected_mood,
                     stringResource(it.labelResId),
@@ -101,6 +131,14 @@ private fun HomeScreen(
             style = MaterialTheme.typography.titleMedium,
         )
     }
+}
+
+private fun MoodType.backgroundColor(): Color = when (this) {
+    MoodType.VERY_GOOD -> Color(0xFFDDF6D8)
+    MoodType.GOOD -> Color(0xFFE6F4EA)
+    MoodType.SOSO -> Color(0xFFF4EFD8)
+    MoodType.BAD -> Color(0xFFF9E0D2)
+    MoodType.VERY_BAD -> Color(0xFFF6D6D9)
 }
 
 private val MoodType.emoji: String
@@ -126,6 +164,10 @@ private val MoodType.labelResId: Int
 @Composable
 private fun HomeRoutePreview() {
     MoodiaryTheme {
-        HomeRoute()
+        HomeScreen(
+            uiState = HomeUiState(isLoading = false, selectedMood = MoodType.GOOD),
+            onMoodSelected = {},
+            contentPadding = PaddingValues(0.dp),
+        )
     }
 }

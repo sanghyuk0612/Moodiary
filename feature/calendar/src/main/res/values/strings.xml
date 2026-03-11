@@ -1,4 +1,23 @@
 ﻿<resources>
     <string name="calendar_title">감정 캘린더</string>
-    <string name="calendar_description">지금까지 기록한 감정을 달력 형태로 모아보는 화면입니다.</string>
+    <string name="calendar_description">기록한 감정을 날짜별로 확인해보세요.</string>
+    <string name="calendar_summary_title">이번 달 기록 요약</string>
+    <string name="calendar_summary_total">기록한 날 %1$d일</string>
+    <string name="calendar_summary_top">가장 많이 기록한 감정 %1$s %2$s</string>
+    <string name="calendar_summary_empty">아직 기록된 감정이 없어요.</string>
+    <string name="calendar_today_label">오늘</string>
+    <string name="calendar_previous_month">이전 달</string>
+    <string name="calendar_next_month">다음 달</string>
+    <string name="calendar_day_monday">월</string>
+    <string name="calendar_day_tuesday">화</string>
+    <string name="calendar_day_wednesday">수</string>
+    <string name="calendar_day_thursday">목</string>
+    <string name="calendar_day_friday">금</string>
+    <string name="calendar_day_saturday">토</string>
+    <string name="calendar_day_sunday">일</string>
+    <string name="mood_very_good_label">최고</string>
+    <string name="mood_good_label">좋음</string>
+    <string name="mood_soso_label">보통</string>
+    <string name="mood_bad_label">별로</string>
+    <string name="mood_very_bad_label">힘듦</string>
 </resources>

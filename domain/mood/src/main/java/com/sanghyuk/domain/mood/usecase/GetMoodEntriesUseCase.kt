@@ -3,8 +3,8 @@
 import com.sanghyuk.domain.mood.model.MoodEntry
 import com.sanghyuk.domain.mood.repository.MoodRepository
 
-class GetTodayMoodUseCase(
+class GetMoodEntriesUseCase(
     private val repository: MoodRepository,
 ) {
-    suspend operator fun invoke(): MoodEntry? = repository.getTodayMood()
+    suspend operator fun invoke(): List<MoodEntry> = repository.getMoodEntries()
 }
