@@ -8,4 +8,5 @@ interface MoodRepository {
     suspend fun getMoodEntries(): List<MoodEntry>
     suspend fun saveMood(entry: MoodEntry)
     suspend fun deleteMood(date: LocalDate)
+    suspend fun deleteAllMoods()
 }

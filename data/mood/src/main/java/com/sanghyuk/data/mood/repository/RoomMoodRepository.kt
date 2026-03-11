@@ -21,4 +21,8 @@ class RoomMoodRepository(
     override suspend fun deleteMood(date: LocalDate) {
         moodDao.deleteMoodByDate(date.toString())
     }
+
+    override suspend fun deleteAllMoods() {
+        moodDao.deleteAllMoods()
+    }
 }

@@ -1,4 +1,4 @@
-package com.sanghyuk.moodiary.di
+package com.moodiary.app.di
 
 import android.content.Context
 import androidx.room.Room
@@ -6,6 +6,7 @@ import com.sanghyuk.data.mood.local.MoodDao
 import com.sanghyuk.data.mood.local.MoodDatabase
 import com.sanghyuk.data.mood.repository.RoomMoodRepository
 import com.sanghyuk.domain.mood.repository.MoodRepository
+import com.sanghyuk.domain.mood.usecase.DeleteAllMoodsUseCase
 import com.sanghyuk.domain.mood.usecase.DeleteMoodUseCase
 import com.sanghyuk.domain.mood.usecase.GetMoodEntriesUseCase
 import com.sanghyuk.domain.mood.usecase.GetTodayMoodUseCase
@@ -57,18 +58,16 @@ object MoodModule {
     @Singleton
     fun provideDeleteMoodUseCase(repository: MoodRepository): DeleteMoodUseCase =
         DeleteMoodUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideDeleteAllMoodsUseCase(repository: MoodRepository): DeleteAllMoodsUseCase =
+        DeleteAllMoodsUseCase(repository)
 }
 
 private class MoodDatabaseSeedCallback : androidx.room.RoomDatabase.Callback() {
     override fun onCreate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
         super.onCreate(db)
-        //FIXME: 테스트 데이터
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-01', 'VERY_GOOD')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-02', 'SOSO')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-03', 'VERY_GOOD')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-05', 'BAD')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-07', 'GOOD')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-08', 'VERY_BAD')")
-//        db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-10', 'GOOD')")
+        // FIXME: 테스트 데이터
     }
 }

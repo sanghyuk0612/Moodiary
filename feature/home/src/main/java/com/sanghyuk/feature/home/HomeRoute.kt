@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -71,44 +72,54 @@ private fun HomeScreen(
     val firstRow = MoodType.entries.take(3)
     val secondRow = MoodType.entries.drop(3)
 
-    Column(
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(contentPadding)
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        Text(
-            text = stringResource(R.string.home_title),
-            style = MaterialTheme.typography.headlineMedium,
-        )
-        Text(
-            text = stringResource(R.string.home_description),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                MoodRow(
-                    moods = firstRow,
-                    selectedMood = uiState.selectedMood,
-                    onMoodSelected = onMoodSelected,
-                )
-                MoodRow(
-                    moods = secondRow,
-                    selectedMood = uiState.selectedMood,
-                    onMoodSelected = onMoodSelected,
-                    centerAligned = true,
-                )
+        item {
+            Text(
+                text = stringResource(R.string.home_title),
+                style = MaterialTheme.typography.headlineMedium,
+            )
+        }
+        item {
+            Text(
+                text = stringResource(R.string.home_description),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        item {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    MoodRow(
+                        moods = firstRow,
+                        selectedMood = uiState.selectedMood,
+                        onMoodSelected = onMoodSelected,
+                    )
+                    MoodRow(
+                        moods = secondRow,
+                        selectedMood = uiState.selectedMood,
+                        onMoodSelected = onMoodSelected,
+                        centerAligned = true,
+                    )
+                }
             }
         }
-        SelectedMoodCard(selectedMood = uiState.selectedMood)
-        RecentMoodCard(recentMoods = uiState.recentMoods)
+        item {
+            SelectedMoodCard(selectedMood = uiState.selectedMood)
+        }
+        item {
+            RecentMoodCard(recentMoods = uiState.recentMoods)
+        }
     }
 }
 

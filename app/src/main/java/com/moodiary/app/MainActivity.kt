@@ -1,4 +1,4 @@
-﻿package com.sanghyuk.moodiary
+package com.moodiary.app
 
 import android.os.Bundle
 import androidx.annotation.StringRes
@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import com.sanghyuk.designsystem.theme.MoodiaryTheme
 import com.sanghyuk.feature.calendar.CalendarRoute
 import com.sanghyuk.feature.home.HomeRoute
+import com.sanghyuk.feature.settings.SettingsRoute
 import com.sanghyuk.feature.statistics.StatisticsRoute
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -33,14 +34,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MoodiaryTheme {
-                MoodiaryApp()
+                MoodiaryApp(appVersion = BuildConfig.VERSION_NAME)
             }
         }
     }
 }
 
 @Composable
-private fun MoodiaryApp() {
+private fun MoodiaryApp(appVersion: String) {
     var selectedTab by rememberSaveable { mutableStateOf(BottomTab.Today) }
 
     Scaffold(
@@ -68,6 +69,10 @@ private fun MoodiaryApp() {
             BottomTab.Calendar -> CalendarRoute(modifier = contentModifier)
             BottomTab.Today -> HomeRoute(modifier = contentModifier)
             BottomTab.Statistics -> StatisticsRoute(modifier = contentModifier)
+            BottomTab.Settings -> SettingsRoute(
+                appVersion = appVersion,
+                modifier = contentModifier,
+            )
         }
     }
 }
@@ -79,4 +84,5 @@ private enum class BottomTab(
     Calendar(labelResId = R.string.bottom_nav_calendar, iconText = "Cal"),
     Today(labelResId = R.string.bottom_nav_today, iconText = "Day"),
     Statistics(labelResId = R.string.bottom_nav_statistics, iconText = "Stat"),
+    Settings(labelResId = R.string.bottom_nav_settings, iconText = "Set"),
 }
