@@ -120,7 +120,7 @@ fun SettingsRoute(
                 putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.settings_contact_subject))
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    context.getString(R.string.settings_contact_body) + "\n\nApp Version: $appVersion",
+                    context.getString(R.string.settings_contact_body, appVersion),
                 )
             }
             context.startActivity(intent)
@@ -240,6 +240,10 @@ private fun WheelTimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int, Int) -> Unit,
 ) {
+    val periodLabels = arrayOf(
+        stringResource(R.string.settings_period_am),
+        stringResource(R.string.settings_period_pm),
+    )
     var selectedHour by remember { mutableIntStateOf(toHour12(initialHour)) }
     var selectedMinute by remember { mutableIntStateOf(initialMinute) }
     var selectedPeriod by remember { mutableIntStateOf(if (initialHour < 12) 0 else 1) }
@@ -258,7 +262,7 @@ private fun WheelTimePickerDialog(
                 SpinnerPicker(
                     value = selectedPeriod,
                     range = 0..1,
-                    displayedValues = arrayOf("AM", "PM"),
+                    displayedValues = periodLabels,
                     onValueChange = { selectedPeriod = it },
                     modifier = Modifier.width(88.dp),
                 )
