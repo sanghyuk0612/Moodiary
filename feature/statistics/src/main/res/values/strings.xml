@@ -1,4 +1,24 @@
 ﻿<resources>
     <string name="statistics_title">감정 통계</string>
-    <string name="statistics_description">여기에 주간 및 월간 감정 분포와 자주 기록한 감정을 표시하게 됩니다.</string>
+    <string name="statistics_description">주간 또는 월간 기준으로 감정 흐름을 살펴보세요.</string>
+    <string name="statistics_weekly">주간</string>
+    <string name="statistics_monthly">월간</string>
+    <string name="statistics_previous_period">이전</string>
+    <string name="statistics_next_period">다음</string>
+    <string name="statistics_total_records">기록 수 %1$d회</string>
+    <string name="statistics_top_mood">가장 많이 표현한 감정 %1$s %2$s</string>
+    <string name="statistics_empty">아직 분석할 감정 기록이 없어요.</string>
+    <string name="statistics_message_very_good">행복한 날이 많아서 정말 보기 좋아요!!</string>
+    <string name="statistics_message_good">편안하고 좋은 흐름이 이어지고 있네요!</string>
+    <string name="statistics_message_soso">차분하게 하루하루를 잘 보내고 있어 보여요.</string>
+    <string name="statistics_message_bad">조금 지친 흐름이 보여요. 오늘은 더 잘 챙겨주세요.</string>
+    <string name="statistics_message_very_bad">많이 힘들었나 봐요. 오늘은 꼭 스스로를 먼저 돌봐주세요.</string>
+    <string name="statistics_message_empty">조금씩 기록을 쌓으면 감정 흐름이 보이기 시작할 거예요.</string>
+    <string name="statistics_section_distribution">감정 분포</string>
+    <string name="statistics_section_message">한마디</string>
+    <string name="mood_very_good_label">최고</string>
+    <string name="mood_good_label">좋음</string>
+    <string name="mood_soso_label">보통</string>
+    <string name="mood_bad_label">별로</string>
+    <string name="mood_very_bad_label">힘듦</string>
 </resources>
