@@ -19,6 +19,16 @@ Moodiary는 하루의 기분을 빠르게 기록하고, 최근 기록과 월간 
 - 알림 시간 설정 및 일일 리마인더 알림
 - 앱 버전 확인, 문의 메일 연결, 전체 기록 초기화
 
+## Screenshots
+
+| Today | Calendar |
+|---|---|
+| ![Today](./docs/screenshots/Today_Screen.png) | ![Calendar](./docs/screenshots/Cal_Screen.png) |
+
+| Statistics | Settings |
+|---|---|
+| ![Statistics](./docs/screenshots/Stat_Screen.png) | ![Settings](./docs/screenshots/Setting_Screen.png) |
+
 ## Screens
 
 - `Today`
@@ -83,6 +93,8 @@ Moodiary/
 |  \- mood/
 +- domain/
 |  \- mood/
++- docs/
+|  \- screenshots/
 +- feature/
 |  +- home/
 |  +- calendar/
