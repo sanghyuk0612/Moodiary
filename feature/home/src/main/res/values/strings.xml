@@ -1,0 +1,11 @@
+﻿<resources>
+    <string name="home_title">오늘 기분은 어떤가요?</string>
+    <string name="home_description">이모지를 한 번 눌러서 오늘 감정을 가볍게 남겨보세요.</string>
+    <string name="home_empty_state">아직 감정을 기록하지 않았어요.</string>
+    <string name="home_selected_mood">오늘 기록한 감정: %1$s %2$s</string>
+    <string name="mood_very_good_label">최고</string>
+    <string name="mood_good_label">좋음</string>
+    <string name="mood_soso_label">보통</string>
+    <string name="mood_bad_label">별로</string>
+    <string name="mood_very_bad_label">힘듦</string>
+</resources>
