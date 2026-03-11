@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="settings_title">설정</string>
     <string name="settings_description">앱 정보와 기록 관리를 여기에서 확인해보세요.</string>
     <string name="settings_section_app">앱 정보</string>
