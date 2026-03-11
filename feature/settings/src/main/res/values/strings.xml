@@ -1,0 +1,24 @@
+<resources>
+    <string name="settings_title">설정</string>
+    <string name="settings_description">앱 정보와 기록 관리를 여기서 확인해보세요.</string>
+    <string name="settings_section_app">앱 정보</string>
+    <string name="settings_version_title">앱 버전</string>
+    <string name="settings_section_notification">알림 설정</string>
+    <string name="settings_notification_title">하루 한 번 기록 알림</string>
+    <string name="settings_notification_description">원하는 시간에 감정 기록 알림을 보낼 수 있도록 준비하고 있어요.</string>
+    <string name="settings_notification_time">알림 시간</string>
+    <string name="settings_notification_change_time">시간 변경</string>
+    <string name="settings_section_support">지원</string>
+    <string name="settings_contact_title">문의하기</string>
+    <string name="settings_contact_description">메일 앱을 열어 바로 문의할 수 있어요.</string>
+    <string name="settings_contact_subject">Moodiary 문의</string>
+    <string name="settings_contact_body">안녕하세요. Moodiary 앱 관련 문의를 남깁니다.</string>
+    <string name="settings_section_data">데이터 관리</string>
+    <string name="settings_reset_title">기록 초기화</string>
+    <string name="settings_reset_description">저장된 모든 감정 기록을 삭제합니다.</string>
+    <string name="settings_reset_button">전체 기록 삭제</string>
+    <string name="settings_reset_dialog_title">기록을 모두 삭제할까요?</string>
+    <string name="settings_reset_dialog_message">이 작업은 되돌릴 수 없어요. 저장된 감정 기록이 모두 삭제됩니다.</string>
+    <string name="settings_reset_confirm">삭제</string>
+    <string name="settings_reset_cancel">취소</string>
+</resources>
