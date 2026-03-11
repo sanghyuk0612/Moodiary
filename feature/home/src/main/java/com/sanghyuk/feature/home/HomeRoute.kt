@@ -60,10 +60,8 @@ private fun HomeScreen(
         return
     }
 
-    val moodRows = listOf(
-        MoodType.entries.take(3),
-        MoodType.entries.drop(3),
-    )
+    val firstRow = MoodType.entries.take(3)
+    val secondRow = MoodType.entries.drop(3)
 
     Column(
         modifier = modifier
@@ -88,36 +86,17 @@ private fun HomeScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                moodRows.forEachIndexed { index, rowMoods ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (index == 1) {
-                            Spacer(modifier = Modifier.weight(0.5f))
-                        }
-
-                        rowMoods.forEach { mood ->
-                            MoodChip(
-                                emoji = mood.emoji,
-                                label = stringResource(mood.labelResId),
-                                selected = uiState.selectedMood == mood,
-                                backgroundColor = mood.backgroundColor(),
-                                onClick = { onMoodSelected(mood) },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-
-                        repeat(3 - rowMoods.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-
-                        if (index == 1) {
-                            Spacer(modifier = Modifier.weight(0.5f))
-                        }
-                    }
-                }
+                MoodRow(
+                    moods = firstRow,
+                    selectedMood = uiState.selectedMood,
+                    onMoodSelected = onMoodSelected,
+                )
+                MoodRow(
+                    moods = secondRow,
+                    selectedMood = uiState.selectedMood,
+                    onMoodSelected = onMoodSelected,
+                    centerAligned = true,
+                )
             }
         }
         Text(
@@ -130,6 +109,39 @@ private fun HomeScreen(
             } ?: stringResource(R.string.home_empty_state),
             style = MaterialTheme.typography.titleMedium,
         )
+    }
+}
+
+@Composable
+private fun MoodRow(
+    moods: List<MoodType>,
+    selectedMood: MoodType?,
+    onMoodSelected: (MoodType) -> Unit,
+    centerAligned: Boolean = false,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (centerAligned) {
+            Spacer(modifier = Modifier.weight(0.5f))
+        }
+
+        moods.forEach { mood ->
+            MoodChip(
+                emoji = mood.emoji,
+                label = stringResource(mood.labelResId),
+                selected = selectedMood == mood,
+                backgroundColor = mood.backgroundColor(),
+                onClick = { onMoodSelected(mood) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        if (centerAligned) {
+            Spacer(modifier = Modifier.weight(0.5f))
+        }
     }
 }
 
