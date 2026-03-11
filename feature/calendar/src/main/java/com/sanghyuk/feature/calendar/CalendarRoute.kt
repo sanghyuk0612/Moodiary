@@ -4,12 +4,12 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -200,10 +200,10 @@ private fun DayCell(
 
     Column(
         modifier = modifier
-            .height(68.dp)
+            .aspectRatio(1f)
             .border(width = if (day.isToday) 1.5.dp else 1.dp, color = borderColor, shape = RoundedCornerShape(14.dp))
             .background(color = containerColor, shape = RoundedCornerShape(14.dp))
-            .padding(horizontal = 6.dp, vertical = 8.dp),
+            .padding(horizontal = 6.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -214,7 +214,7 @@ private fun DayCell(
         )
         Text(
             text = day.emoji ?: "",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
         )
     }
 }
