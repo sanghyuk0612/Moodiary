@@ -1,10 +1,11 @@
-﻿package com.sanghyuk.feature.calendar
+package com.sanghyuk.feature.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sanghyuk.domain.mood.model.MoodEntry
 import com.sanghyuk.domain.mood.model.MoodType
 import com.sanghyuk.domain.mood.usecase.GetMoodEntriesUseCase
+import com.sanghyuk.domain.mood.usecase.SaveMoodUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -21,11 +22,14 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val getMoodEntriesUseCase: GetMoodEntriesUseCase,
+    private val saveMoodUseCase: SaveMoodUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
-    private var selectedMonth: LocalDate = LocalDate.now().withDayOfMonth(1)
+    private val currentMonth: LocalDate = LocalDate.now().withDayOfMonth(1)
+    private var selectedMonth: LocalDate = currentMonth
+    private var entriesByDate: Map<LocalDate, MoodType> = emptyMap()
 
     init {
         refresh()
@@ -41,14 +45,46 @@ class CalendarViewModel @Inject constructor(
     }
 
     fun goToNextMonth() {
+        if (!canGoNextMonth()) return
         selectedMonth = selectedMonth.plusMonths(1)
         loadCalendar(selectedMonth)
+    }
+
+    fun onDateSelected(date: LocalDate) {
+        if (date.isAfter(LocalDate.now())) return
+
+        _uiState.update {
+            it.copy(
+                editingDate = date,
+                editingMood = entriesByDate[date],
+            )
+        }
+    }
+
+    fun dismissEditor() {
+        _uiState.update {
+            it.copy(
+                editingDate = null,
+                editingMood = null,
+            )
+        }
+    }
+
+    fun saveMood(moodType: MoodType) {
+        val editingDate = _uiState.value.editingDate ?: return
+
+        viewModelScope.launch {
+            saveMoodUseCase(MoodEntry(date = editingDate, moodType = moodType))
+            dismissEditor()
+            loadCalendar(selectedMonth)
+        }
     }
 
     private fun loadCalendar(month: LocalDate) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val entries = getMoodEntriesUseCase()
+            entriesByDate = entries.associate { it.date to it.moodType }
             _uiState.update {
                 buildUiState(month = month, entries = entries)
             }
@@ -60,6 +96,7 @@ class CalendarViewModel @Inject constructor(
         entries: List<MoodEntry>,
     ): CalendarUiState {
         val entryMap = entries.associateBy { it.date }
+        val today = LocalDate.now()
         val currentMonthEntries = entries.filter { it.date.year == month.year && it.date.month == month.month }
         val topMood = currentMonthEntries
             .groupingBy { it.moodType }
@@ -69,16 +106,20 @@ class CalendarViewModel @Inject constructor(
 
         return CalendarUiState(
             isLoading = false,
-            monthTitle = month.format(DateTimeFormatter.ofPattern("yyyy년 M월", Locale.KOREA)),
+            monthTitle = month.format(DateTimeFormatter.ofPattern("yyyy.MM", Locale.KOREA)),
             recordedDays = currentMonthEntries.size,
             topMood = topMood,
-            weeks = buildWeeks(month = month, entryMap = entryMap),
+            weeks = buildWeeks(month = month, entryMap = entryMap, today = today),
+            canGoNext = month.isBefore(currentMonth),
+            editingDate = _uiState.value.editingDate,
+            editingMood = _uiState.value.editingMood,
         )
     }
 
     private fun buildWeeks(
         month: LocalDate,
         entryMap: Map<LocalDate, MoodEntry>,
+        today: LocalDate,
     ): List<List<CalendarDayUiModel>> {
         val firstDayOfMonth = month.withDayOfMonth(1)
         val startOffset = firstDayOfMonth.dayOfWeek.ordinal
@@ -96,13 +137,16 @@ class CalendarViewModel @Inject constructor(
                     date = date,
                     dayOfMonthLabel = date.dayOfMonth.toString(),
                     isCurrentMonth = date.month == month.month,
-                    isToday = date == LocalDate.now(),
+                    isToday = date == today,
+                    isFuture = date.isAfter(today),
                     moodType = mood,
                     emoji = mood?.toEmoji(),
                 )
             }
         }
     }
+
+    private fun canGoNextMonth(): Boolean = selectedMonth.isBefore(currentMonth)
 }
 
 data class CalendarUiState(
@@ -111,6 +155,9 @@ data class CalendarUiState(
     val recordedDays: Int = 0,
     val topMood: MoodType? = null,
     val weeks: List<List<CalendarDayUiModel>> = emptyList(),
+    val canGoNext: Boolean = false,
+    val editingDate: LocalDate? = null,
+    val editingMood: MoodType? = null,
 )
 
 data class CalendarDayUiModel(
@@ -118,6 +165,7 @@ data class CalendarDayUiModel(
     val dayOfMonthLabel: String,
     val isCurrentMonth: Boolean,
     val isToday: Boolean,
+    val isFuture: Boolean,
     val moodType: MoodType?,
     val emoji: String?,
 )

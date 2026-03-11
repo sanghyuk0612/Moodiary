@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="calendar_title">감정 캘린더</string>
     <string name="calendar_description">기록한 감정을 날짜별로 확인해보세요.</string>
     <string name="calendar_summary_title">이번 달 기록 요약</string>
@@ -8,6 +8,10 @@
     <string name="calendar_today_label">오늘</string>
     <string name="calendar_previous_month">이전 달</string>
     <string name="calendar_next_month">다음 달</string>
+    <string name="calendar_picker_title">감정 기록</string>
+    <string name="calendar_picker_message">%1$s의 감정을 선택해보세요.</string>
+    <string name="calendar_picker_edit_message">%1$s의 감정을 다시 선택해보세요.</string>
+    <string name="calendar_picker_close">닫기</string>
     <string name="calendar_day_monday">월</string>
     <string name="calendar_day_tuesday">화</string>
     <string name="calendar_day_wednesday">수</string>

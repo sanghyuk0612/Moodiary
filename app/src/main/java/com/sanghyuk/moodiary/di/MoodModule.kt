@@ -58,14 +58,15 @@ object MoodModule {
 private class MoodDatabaseSeedCallback : androidx.room.RoomDatabase.Callback() {
     override fun onCreate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
         super.onCreate(db)
-        Executors.newSingleThreadExecutor().execute {
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-01', 'GOOD')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-02', 'SOSO')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-03', 'VERY_GOOD')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-05', 'BAD')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-07', 'GOOD')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-08', 'VERY_BAD')")
-            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-10', 'GOOD')")
-        }
+        //FIXME: 테스트 데이터
+//        Executors.newSingleThreadExecutor().execute {
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-01', 'VERY_GOOD')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-02', 'SOSO')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-03', 'VERY_GOOD')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-05', 'BAD')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-07', 'GOOD')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-08', 'VERY_BAD')")
+//            db.execSQL("INSERT INTO mood_entries(date, moodType) VALUES ('2026-03-10', 'GOOD')")
+//        }
     }
 }
