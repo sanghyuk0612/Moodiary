@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,16 +26,17 @@ import com.sanghyuk.designsystem.theme.MoodiaryTheme
 import com.sanghyuk.domain.mood.model.MoodType
 
 @Composable
-fun HomeRoute() {
+fun HomeRoute(
+    modifier: Modifier = Modifier,
+) {
     var selectedMood by remember { mutableStateOf<MoodType?>(null) }
 
-    Scaffold { innerPadding ->
-        HomeScreen(
-            selectedMood = selectedMood,
-            onMoodSelected = { selectedMood = it },
-            contentPadding = innerPadding,
-        )
-    }
+    HomeScreen(
+        selectedMood = selectedMood,
+        onMoodSelected = { selectedMood = it },
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -44,9 +44,10 @@ private fun HomeScreen(
     selectedMood: MoodType?,
     onMoodSelected: (MoodType) -> Unit,
     contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(contentPadding)
             .padding(24.dp),
