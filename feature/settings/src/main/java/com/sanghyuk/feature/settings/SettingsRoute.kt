@@ -2,6 +2,7 @@ package com.sanghyuk.feature.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.NumberPicker
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,40 +11,38 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsRoute(
     appVersion: String,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
 
@@ -70,42 +69,13 @@ fun SettingsRoute(
     }
 
     if (showTimePicker) {
-        val timePickerState = rememberTimePickerState(
+        WheelTimePickerDialog(
             initialHour = uiState.notificationHour,
             initialMinute = uiState.notificationMinute,
-            is24Hour = false,
-        )
-
-        AlertDialog(
-            onDismissRequest = { showTimePicker = false },
-            title = {
-                Text(text = stringResource(R.string.settings_notification_time))
-            },
-            text = {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    TimePicker(state = timePickerState)
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.updateNotificationTime(
-                            timePickerState.hour,
-                            timePickerState.minute,
-                        )
-                        showTimePicker = false
-                    },
-                ) {
-                    Text(text = stringResource(R.string.settings_reset_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showTimePicker = false }) {
-                    Text(text = stringResource(R.string.settings_reset_cancel))
-                }
+            onDismiss = { showTimePicker = false },
+            onConfirm = { hour, minute ->
+                viewModel.updateNotificationTime(hour, minute)
+                showTimePicker = false
             },
         )
     }
@@ -116,17 +86,7 @@ fun SettingsRoute(
         onNotificationEnabledChange = viewModel::updateNotificationEnabled,
         onChangeTimeClick = { showTimePicker = true },
         onResetClick = viewModel::showResetDialog,
-        onContactClick = {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:hwhwhw944@gmail.com")
-                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.settings_contact_subject))
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    context.getString(R.string.settings_contact_body) + "\n\nApp Version: $appVersion",
-                )
-            }
-            context.startActivity(intent)
-        },
+        onContactClick = { openMail(appVersion) },
         modifier = modifier,
     )
 }
@@ -232,6 +192,102 @@ private fun SettingsScreen(
             )
         }
     }
+}
+
+@Composable
+private fun WheelTimePickerDialog(
+    initialHour: Int,
+    initialMinute: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit,
+) {
+    var selectedHour by remember { mutableIntStateOf(toHour12(initialHour)) }
+    var selectedMinute by remember { mutableIntStateOf(initialMinute) }
+    var selectedPeriod by remember { mutableIntStateOf(if (initialHour < 12) 0 else 1) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.settings_notification_time))
+        },
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SpinnerPicker(
+                    value = selectedPeriod,
+                    range = 0..1,
+                    displayedValues = arrayOf("AM", "PM"),
+                    onValueChange = { selectedPeriod = it },
+                    modifier = Modifier.width(88.dp),
+                )
+                SpinnerPicker(
+                    value = selectedHour,
+                    range = 1..12,
+                    formatter = { it.toString() },
+                    onValueChange = { selectedHour = it },
+                    modifier = Modifier.width(88.dp),
+                )
+                SpinnerPicker(
+                    value = selectedMinute,
+                    range = 0..59,
+                    formatter = { String.format(Locale.KOREA, "%02d", it) },
+                    onValueChange = { selectedMinute = it },
+                    modifier = Modifier.width(88.dp),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(toHour24(selectedHour, selectedPeriod), selectedMinute)
+                },
+            ) {
+                Text(text = stringResource(R.string.settings_reset_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.settings_reset_cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun SpinnerPicker(
+    value: Int,
+    range: IntRange,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    displayedValues: Array<String>? = null,
+    formatter: ((Int) -> String)? = null,
+) {
+    val values = displayedValues ?: range.map { formatter?.invoke(it) ?: it.toString() }.toTypedArray()
+
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            NumberPicker(context).apply {
+                minValue = range.first
+                maxValue = range.last
+                wrapSelectorWheel = true
+                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+                setOnValueChangedListener { _, _, newVal -> onValueChange(newVal) }
+            }
+        },
+        update = { picker ->
+            picker.minValue = range.first
+            picker.maxValue = range.last
+            picker.displayedValues = null
+            picker.displayedValues = values
+            if (picker.value != value) {
+                picker.value = value
+            }
+        },
+    )
 }
 
 @Composable
@@ -341,9 +397,35 @@ private fun SettingsActionRow(
     }
 }
 
+@Composable
+private fun openMail(appVersion: String) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:hwhwhw944@gmail.com")
+        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.settings_contact_subject))
+        putExtra(
+            Intent.EXTRA_TEXT,
+            context.getString(R.string.settings_contact_body) + "\n\nApp Version: $appVersion",
+        )
+    }
+    context.startActivity(intent)
+}
+
 private fun formatTime(hour: Int, minute: Int): String = String.format(
     Locale.KOREA,
     "%02d:%02d",
     hour,
     minute,
 )
+
+private fun toHour12(hour24: Int): Int = when (val normalized = hour24 % 12) {
+    0 -> 12
+    else -> normalized
+}
+
+private fun toHour24(hour12: Int, period: Int): Int = when {
+    period == 0 && hour12 == 12 -> 0
+    period == 0 -> hour12
+    period == 1 && hour12 == 12 -> 12
+    else -> hour12 + 12
+}
