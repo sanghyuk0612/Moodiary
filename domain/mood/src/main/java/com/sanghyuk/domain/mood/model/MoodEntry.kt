@@ -1,6 +1,8 @@
-package com.sanghyuk.domain.mood.model
+﻿package com.sanghyuk.domain.mood.model
+
+import java.time.LocalDate
 
 data class MoodEntry(
-    val date: String,
+    val date: LocalDate,
     val moodType: MoodType,
 )

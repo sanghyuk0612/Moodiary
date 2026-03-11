@@ -24,7 +24,9 @@ import com.sanghyuk.designsystem.theme.MoodiaryTheme
 import com.sanghyuk.feature.calendar.CalendarRoute
 import com.sanghyuk.feature.home.HomeRoute
 import com.sanghyuk.feature.statistics.StatisticsRoute
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
