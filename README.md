@@ -94,8 +94,8 @@ Moodiary/
 
 ## Download
 
-- APK: GitHub Releases에 업로드 후 링크 추가 예정
-- 예시: `https://github.com/<your-id>/Moodiary/releases`
+- APK: [Download v1.0.0](https://github.com/sanghyuk0612/Moodiary/releases/tag/v1.0.0)
+- Releases: [View all releases](https://github.com/sanghyuk0612/Moodiary/releases)
 
 ## Getting Started
 
