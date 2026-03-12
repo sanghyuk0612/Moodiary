@@ -29,6 +29,10 @@ Moodiary는 하루의 기분을 빠르게 기록하고, 최근 기록과 월간 
 |---|---|
 | ![Statistics](./docs/screenshots/Stat_Screen.png) | ![Settings](./docs/screenshots/Setting_Screen.png) |
 
+## Demo Video
+
+- Short demo: [Watch on YouTube](https://youtube.com/shorts/erwWZIpn2wE?feature=share)
+
 ## Screens
 
 - `Today`
